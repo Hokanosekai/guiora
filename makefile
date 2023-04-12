@@ -5,7 +5,6 @@
 PROG_NAME = guiora
 OUTPUT_DIR = bin
 TARGET_DIR = target
-FLAG = debug
 
 lib ?= 0
 release ?= 0
@@ -19,21 +18,23 @@ else
 endif
 
 ifeq ($(release), 1)
-	FLAG = release
+	FLAG = --release
+	DIR = $(TARGET_DIR)/release/$(OUTPUT_NAME)
 else
-	FLAG = debug
+	FLAG =
+	DIR = $(TARGET_DIR)/debug/$(OUTPUT_NAME)
 endif
 
 # Cargo
 build:
 	@echo "Building $(OUTPUT_NAME)..."
-	cargo build --$(TARGET) --$(FLAG)
+	@cargo build --$(TARGET) $(FLAG)
 
 # Installation
 install:
 	@echo "Installing $(OUTPUT_NAME)..."
-	mkdir -p $(OUTPUT_DIR)
-	cp $(TARGET_DIR)/$(FLAG)/$(OUTPUT_NAME) $(OUTPUT_DIR)
+	@mkdir -p $(OUTPUT_DIR)
+	@cp $(DIR) $(OUTPUT_DIR)
 
 # Compiler
 all: build install
@@ -41,8 +42,8 @@ all: build install
 # Clean
 clean:
 	@echo "Cleaning..."
-	rm -rf $(OUTPUT_DIR)
-	cargo clean
+	@rm -rf $(OUTPUT_DIR)
+	@cargo clean
 
 # Help
 help:
