@@ -1,17 +1,56 @@
 extern crate sdl2;
 
+use deno_bindgen::deno_bindgen;
 use sdl2::pixels::Color;
 
 pub struct GuioraWindow {
 	pub title: String,
 	pub width: u32,
 	pub height: u32,
-	pub canvas: sdl2::render::Canvas<sdl2::video::Window>,
-	pub event_pump: sdl2::EventPump,
 	pub running: bool,
-	pub mouse_x: i32,
-	pub mouse_y: i32,
+	pub mouse: GuioraMouse,
+	pub canvas: *mut sdl2::render::Canvas<sdl2::video::Window>,
+	pub event_pump: *mut sdl2::EventPump,
 }
+
+#[deno_bindgen]
+pub struct GuioraMouse {
+	pub x: i32,
+	pub y: i32,
+}
+
+#[deno_bindgen]
+pub struct GuioraRect {
+	pub x: i32,
+	pub y: i32,
+	pub width: u32,
+	pub height: u32,
+}
+
+#[deno_bindgen]
+pub struct GuioraColor {
+	pub r: u8,
+	pub g: u8,
+	pub b: u8,
+	pub a: u8,
+}
+
+#[deno_bindgen]
+pub struct GuioraButton {
+	pub rect: GuioraRect,
+	pub color: GuioraColor,
+	pub text: String,
+}
+
+impl Clone for GuioraMouse {
+	fn clone(&self) -> GuioraMouse {
+		GuioraMouse {
+			x: self.x,
+			y: self.y,
+		}
+	}
+}
+impl Copy for GuioraMouse {}
 
 impl Drop for GuioraWindow {
 	fn drop(&mut self) {
@@ -19,104 +58,174 @@ impl Drop for GuioraWindow {
 	}
 }
 
-
-/**
- * Create a new window
- *
- * @param title (String) The title of the window
- * @param width (Int) The width of the window
- * @param height (Int) The height of the window
- * @return A pointer to the window
- */
-#[no_mangle]
-pub extern "C" fn window_create(title: *const i8, width: u32, height: u32) -> *mut GuioraWindow {
-	let title = unsafe { std::ffi::CStr::from_ptr(title).to_string_lossy().into_owned() };
-	let sdl_context = sdl2::init().unwrap();
-	let video_subsystem = sdl_context.video().unwrap();
-	let window = video_subsystem.window(&title, width, height)
-		.position_centered()
-		.opengl()
-		.build()
-		.unwrap();
-	let canvas = window.into_canvas().build().unwrap();
-	let event_pump = sdl_context.event_pump().unwrap();
-	let mut guiora = GuioraWindow {
-		title: title,
-		width: width,
-		height: height,
-		canvas: canvas,
-		event_pump: event_pump,
-		running: true,
-		mouse_x: 0,
-		mouse_y: 0,
-	};
-
-	// Set the background color
-	guiora.canvas.set_draw_color(Color::RGB(0, 0, 0));
-	guiora.canvas.clear();
-	guiora.canvas.present();
-
-	// Return a pointer to the window
-	Box::into_raw(Box::new(guiora))
-}
-
-#[no_mangle]
-pub extern "C" fn window_destroy(window: *mut GuioraWindow) {
-	unsafe {
-		drop(Box::from_raw(window));
+impl Drop for GuioraRect {
+	fn drop(&mut self) {
+		println!("Dropping rect");
 	}
 }
 
-#[no_mangle]
-pub extern "C" fn window_render(window: *mut GuioraWindow) {
-	unsafe {
-		(*window).canvas.present();
+impl Drop for GuioraColor {
+	fn drop(&mut self) {
+		println!("Dropping color");
 	}
 }
 
-#[no_mangle]
-pub extern "C" fn window_update(window: *mut GuioraWindow) {
-	unsafe {
-		println!("Mouse moved to ({}, {})", (*window).mouse_x, (*window).mouse_y);
-		for event in (*window).event_pump.poll_iter() {
-			match event {
-				sdl2::event::Event::Quit {..} => {
-					(*window).running = false;
-					// Kill the window
-					window_destroy(window);
-				},
-				sdl2::event::Event::MouseMotion { x, y, .. } => {
-					(*window).mouse_x = x;
-					(*window).mouse_y = y;
-				},
-				_ => {}
-			}
+impl Drop for GuioraButton {
+	fn drop(&mut self) {
+		println!("Dropping button");
+	}
+}
+
+impl GuioraWindow {
+	/**
+	 * Create a new window
+	 *
+	 * @param title (String) The title of the window
+	 * @param width (Int) The width of the window
+	 * @param height (Int) The height of the window
+	 * @return A pointer to the window
+	 */
+	#[no_mangle]
+	pub fn new(_title: *const i8, width: u32, height: u32) -> *mut GuioraWindow {
+		let title = unsafe { std::ffi::CStr::from_ptr(_title).to_string_lossy().into_owned() };
+
+		let sdl_context = sdl2::init().unwrap();
+		let video_subsystem = sdl_context.video().unwrap();
+		let window = video_subsystem.window(&title, width, height)
+			.position_centered()
+			.opengl()
+			.build()
+			.unwrap();
+
+		let canvas = window.into_canvas().build().unwrap();
+		let event_pump = sdl_context.event_pump().unwrap();
+		let guiora = GuioraWindow {
+			title: title,
+			width: width,
+			height: height,
+			canvas: Box::into_raw(Box::new(canvas)),
+			event_pump: Box::into_raw(Box::new(event_pump)),
+			running: true,
+			mouse: GuioraMouse {
+				x: 0,
+				y: 0,
+			},
+		};
+
+		// Set the background color
+		unsafe {
+			(*guiora.canvas).set_draw_color(Color::RGB(0, 0, 0));
+			(*guiora.canvas).clear();
+			(*guiora.canvas).present();
+		}
+
+		// Return a pointer to the window
+		Box::into_raw(Box::new(guiora))
+	}
+	/**
+	 * Get the X position of the mouse
+	 *
+	 * @return The X position of the mouse
+	 */
+	#[no_mangle]
+	pub fn get_mouse_x(&self) -> i32 {
+		// Return the mouse position
+		self.mouse.x
+	}
+	/**
+	 * Get the Y position of the mouse
+	 *
+	 * @return The Y position of the mouse
+	 */
+	#[no_mangle]
+	pub fn get_mouse_y(&self) -> i32 {
+		// Return the mouse position
+		self.mouse.y
+	}
+	/**
+	 * Set the draw color
+	 *
+	 * @param r (Int) The red value
+	 * @param g (Int) The green value
+	 * @param b (Int) The blue value
+	 * @param a (Int) The alpha value
+	 */
+	#[no_mangle]
+	pub fn set_draw_color(&mut self, r: u8, g: u8, b: u8, a: u8) {
+		unsafe {
+			(*self.canvas).set_draw_color(Color::RGBA(r, g, b, a));
 		}
 	}
-}
-
-#[no_mangle]
-pub extern "C" fn window_draw_rect(window: *mut GuioraWindow, x: i32, y: i32, width: u32, height: u32) {
-	unsafe {
-		println!("Drawing rect at ({}, {})", x, y);
-		println!("Drawing rect with width {} and height {}", width, height);
-		(*window).canvas.set_draw_color(Color::RGB(255, 0, 0));
-		(*window).canvas.fill_rect(sdl2::rect::Rect::new(x, y, width, height)).unwrap();
+	/**
+	 * Draw a rectangle
+	 *
+	 * @param x (Int) The X position of the rectangle
+	 * @param y (Int) The Y position of the rectangle
+	 * @param width (Int) The width of the rectangle
+	 * @param height (Int) The height of the rectangle
+	 */
+	#[no_mangle]
+	pub fn draw_rect(&mut self, x: i32, y: i32, width: u32, height: u32) {
+		unsafe {
+			(*self.canvas).fill_rect(sdl2::rect::Rect::new(x, y, width, height)).unwrap();
+		}
 	}
-}
-
-#[no_mangle]
-pub extern "C" fn window_clear(window: *mut GuioraWindow) {
-	unsafe {
-		(*window).canvas.clear();
+	/**
+	 * Check if the window is running
+	 *
+	 * @return True if the window is running
+	 */
+	#[no_mangle]
+	pub fn is_running(&self) -> bool {
+		self.running
 	}
-}
+	/**
+	 * Clear the window
+	 */
+	#[no_mangle]
+	pub fn clear(&mut self) {
+		unsafe {
+			(*self.canvas).clear();
+		}
+	}
+	/**
+	 * Close the window
+	 */
+	#[no_mangle]
+	pub fn close(&mut self) {
+		self.running = false;
+	}
+	/**
+	 * Render the window
+	 */
+	#[no_mangle]
+	pub fn render(&mut self) {
+		unsafe {
+			(*self.canvas).set_draw_color(Color::RGB(0, 0, 0));
+			(*self.canvas).present();
+		}
+	}
+	/**
+	 * Update the window
+	 */
+	#[no_mangle]
+	pub fn update(&mut self) {
+		// Update the mouse position
+		let mouse_state = unsafe { (*self.event_pump).mouse_state() };
+		self.mouse.x = mouse_state.x();
+		self.mouse.y = mouse_state.y();
 
-#[no_mangle]
-pub extern "C" fn window_set_title(window: *mut GuioraWindow, title: *const i8) {
-	let title = unsafe { std::ffi::CStr::from_ptr(title).to_string_lossy().into_owned() };
-	unsafe {
-		(*window).title = title;
+		// Update the window
+		unsafe {
+			for event in (*self.event_pump).poll_iter() {
+				match event {
+					sdl2::event::Event::Quit { .. } => {
+						self.running = false;
+					},
+					_ => {}
+				}
+			}
+		}
 	}
 }
 
