@@ -1,3 +1,5 @@
+import { Guiora } from "./mod.ts";
+
 export type GuioraColor = {
   r: number;
   g: number;
@@ -12,7 +14,26 @@ export type GuioraRect = {
   height: number;
 }
 
-export type GuioraMouse = {
-  x: number;
-  y: number;
+export class GuioraMouse {
+  constructor(
+    public x: number,
+    public y: number,
+    public state: number,
+  ) { }
+
+  public isDown(button: GuioraMouseButton): boolean {
+    return (this.state & button) === button;
+  }
+
+  public isUp(button: GuioraMouseButton): boolean {
+    return !this.isDown(button);
+  }
 }
+
+export enum GuioraMouseButton {
+  Left = 1,
+  Right = 2,
+  Middle = 4,
+}
+
+export type GuioraUpdateFn = (lib: Guiora, mouse: GuioraMouse) => void;

@@ -17,6 +17,9 @@ pub struct GuioraWindow {
 pub struct GuioraMouse {
 	pub x: i32,
 	pub y: i32,
+	pub left: bool,
+	pub right: bool,
+	pub middle: bool,
 }
 
 #[deno_bindgen]
@@ -47,6 +50,9 @@ impl Clone for GuioraMouse {
 		GuioraMouse {
 			x: self.x,
 			y: self.y,
+			left: self.left,
+			right: self.right,
+			middle: self.middle,
 		}
 	}
 }
@@ -109,6 +115,9 @@ impl GuioraWindow {
 			mouse: GuioraMouse {
 				x: 0,
 				y: 0,
+				left: false,
+				right: false,
+				middle: false,
 			},
 		};
 
@@ -227,6 +236,46 @@ impl GuioraWindow {
 			}
 		}
 	}
+	/**
+	 * Is the mouse down
+	 * 
+	 * Check if any mouse button is down
+	 */
+	#[no_mangle]
+	pub fn is_mouse_down(&mut self) -> bool {
+		// Get the mouse state
+		let mouse_state = unsafe { (*self.event_pump).mouse_state() };
+
+		// Update the mouse
+		self.mouse.left = mouse_state.left();
+		self.mouse.right = mouse_state.right();
+		self.mouse.middle = mouse_state.middle();
+
+		// Check if any mouse button is down
+		mouse_state.left() || mouse_state.middle() || mouse_state.right()
+	}
+	/**
+	 * Get the mouse state
+	 *
+	 * @return The mouse state as an i32
+	 */
+	#[no_mangle]
+	pub fn get_mouse_state(&mut self) -> i32 {
+		// Get the mouse state
+		let mouse_state = unsafe { (*self.event_pump).mouse_state() };
+
+		// Update the mouse
+		self.mouse.left = mouse_state.left();
+		self.mouse.right = mouse_state.right();
+		self.mouse.middle = mouse_state.middle();
+
+		// Return the mouse state as
+		// left = 1
+		// right = 2
+		// middle = 4
+		(mouse_state.left() as i32) | ((mouse_state.right() as i32) << 1) | ((mouse_state.middle() as i32) << 2)
+	}
+
 }
 
 pub fn main() {
