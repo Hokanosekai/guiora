@@ -3,3 +3,4 @@
 /bin
 /.vscode/*
 /bindings/*
+bindings.json

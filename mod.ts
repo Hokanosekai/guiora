@@ -1,6 +1,6 @@
-import { GuioraButtonEvent, GuioraEvent, GuioraEventMap, GuioraGlobalEventMap, GuioraParamsMap } from "./emitter.ts";
-import { Emitter } from "./emitter.ts";
-import { GUIORA_UPDATE_CAP, GuioraButton, GuioraColor, GuioraMouse, GuioraMouseButton, GuioraRect, GuioraUpdateFn } from "./types.ts";
+import { GuioraButtonEvent, GuioraEvent, GuioraEventMap, GuioraGlobalEventMap, GuioraParamsMap } from "./src/emitter.ts";
+import { Emitter } from "./src/emitter.ts";
+import { GUIORA_UPDATE_CAP, GuioraButton, GuioraColor, GuioraMouse, GuioraMouseButton, GuioraRect, GuioraUpdateFn } from "./src/types.ts";
 
 export class Guiora extends Emitter<GuioraGlobalEventMap> {
   private lib: any;

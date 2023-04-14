@@ -1,5 +1,5 @@
 import { Emitter, GuioraButtonEvent, GuioraButtonEventMap, GuioraEventKey, GuioraParamsMap } from "./emitter.ts";
-import { Guiora } from "./mod.ts";
+import { Guiora } from "../mod.ts";
 
 export const GUIORA_UPDATE_CAP = 1 / 60;
 
