@@ -31,6 +31,18 @@ export class GuioraMouse {
   public isUp(button: GuioraMouseButton): boolean {
     return !this.isDown(button);
   }
+
+  public isLeftPressed(): boolean {
+    return this.isDown(GuioraMouseButton.Left);
+  }
+
+  public isRightPressed(): boolean {
+    return this.isDown(GuioraMouseButton.Right);
+  }
+
+  public isMiddlePressed(): boolean {
+    return this.isDown(GuioraMouseButton.Middle);
+  }
 }
 
 export class GuioraButton extends Emitter<GuioraButtonEventMap> {
@@ -63,10 +75,30 @@ export class GuioraButton extends Emitter<GuioraButtonEventMap> {
     if (this.isClicked(mouse)) {
       this.emit(GuioraButtonEvent.Click, { button: this });
     }
+
+    if (this.isReleased(mouse)) {
+      this.emit(GuioraButtonEvent.Release, { button: this });
+    }
+
+    if (this.isHovered(mouse)) {
+      this.emit(GuioraButtonEvent.Hover, { button: this });
+    }
   }
 
   public onClicked(fn: (button: GuioraButton) => void): void {
     this.on(GuioraButtonEvent.Click, (event: GuioraParamsMap[GuioraButtonEvent.Click]) => {
+      fn(event.button);
+    });
+  }
+
+  public onReleased(fn: (button: GuioraButton) => void): void {
+    this.on(GuioraButtonEvent.Release, (event: GuioraParamsMap[GuioraButtonEvent.Release]) => {
+      fn(event.button);
+    });
+  }
+
+  public onHovered(fn: (button: GuioraButton) => void): void {
+    this.on(GuioraButtonEvent.Hover, (event: GuioraParamsMap[GuioraButtonEvent.Hover]) => {
       fn(event.button);
     });
   }

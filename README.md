@@ -36,6 +36,86 @@ Then you can run your code with:
 deno run -A --unstable mod.ts
 ```
 
+## Examples
+
+### Mouse
+
+The mouse struct is the following:
+
+```typescript
+class GuioraMouse {
+    x: number;
+    y: number;
+    state: number;
+}
+```
+
+There is prebuilt functions to know if a button is pressed or not:
+
+| Function | Description |
+| --- | --- |
+| `isLeftPressed()` | Returns true if the left button is pressed. |
+| `isMiddlePressed()` | Returns true if the middle button is pressed. |
+| `isRightPressed()` | Returns true if the right button is pressed. |
+| `isDown(button: GuioraMouseButton)` | Returns true if the button is pressed. |
+| `isUp(button: GuioraMouseButton)` | Returns true if the button is not pressed. |
+
+You can listen to mouse events with the following code:
+
+```typescript
+guiora.onMouseUp((mouse: GuioraMouse) => {
+  ...
+});
+
+guiora.onMouseDown((mouse: GuioraMouse) => {
+  ...
+});
+
+guiora.onMouseMove((mouse: GuioraMouse) => {
+  ...
+});
+
+guiora.onMouseClick((mouse: GuioraMouse) => {
+  ...
+});
+```
+
+### Button
+
+A button is defined by the following struct:
+
+```typescript
+class GuioraButton {
+    rect: GuioraRect;
+    text: string;
+    color: GuioraColor;
+}
+```
+
+Like the mouse, there is prebuilt functions to know if a button is pressed or not:
+
+| Function | Description |
+| --- | --- |
+| `isClicked(mouse: GuioraMouse)` | Returns true if the button is pressed. |
+| `isHovered(mouse: GuioraMouse)` | Returns true if the button is hovered. |
+| `isReleased(mouse: GuioraMouse)` | Returns true if the button is released. |
+
+You can listen to button events with the following code:
+
+```typescript
+guiora.onClicked((button: GuioraButton, mouse: GuioraMouse) => {
+  ...
+});
+
+guiora.onHovered((button: GuioraButton, mouse: GuioraMouse) => {
+  ...
+});
+
+guiora.onReleased((button: GuioraButton, mouse: GuioraMouse) => {
+  ...
+});
+```
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
