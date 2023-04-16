@@ -1,113 +1,74 @@
-import { Emitter, GuioraButtonEvent, GuioraButtonEventMap, GuioraEventKey, GuioraParamsMap } from "./emitter.ts";
-import { Guiora } from "../mod.ts";
+import { Guiora } from "./structures/guiora.ts";
+import { GuioraMouse } from "./structures/mouse.ts";
 
 export const GUIORA_UPDATE_CAP = 1 / 60;
 
-export type GuioraColor = {
+export type GuioraElement = {
+  render: (lib: Guiora) => void;
+  update: (lib: Guiora, mouse: GuioraMouse) => void;
+}
+
+export type GuioraColorType = {
   r: number;
   g: number;
   b: number;
   a: number;
 }
 
-export type GuioraRect = {
+export type GuioraRectType = {
   x: number;
   y: number;
   width: number;
   height: number;
+} & GuioraElement
+
+export type GuioraPointType = {
+  x: number;
+  y: number;
+  width: number;
+  color: GuioraColorType;
+} & GuioraElement
+
+export type GuioraTextType = {
+  text: string;
+  color: GuioraColorType;
+  align: GuioraTextAlign;
+} & GuioraElement
+
+export enum GuioraTextAlign {
+  Left = 0,
+  Center = 1,
+  Right = 2,
 }
 
-export class GuioraMouse {
-  constructor(
-    public x: number,
-    public y: number,
-    public state: number,
-  ) { }
+export type GuioraButtonType = {
+  rect: GuioraRectType;
+  color: GuioraColorType;
+  text: string;
+} & GuioraElement
 
-  public isDown(button: GuioraMouseButton): boolean {
-    return (this.state & button) === button;
-  }
-
-  public isUp(button: GuioraMouseButton): boolean {
-    return !this.isDown(button);
-  }
-
-  public isLeftPressed(): boolean {
-    return this.isDown(GuioraMouseButton.Left);
-  }
-
-  public isRightPressed(): boolean {
-    return this.isDown(GuioraMouseButton.Right);
-  }
-
-  public isMiddlePressed(): boolean {
-    return this.isDown(GuioraMouseButton.Middle);
-  }
+export type GuioraMouseType = {
+  x: number;
+  y: number;
+  button: number;
 }
 
-export class GuioraButton extends Emitter<GuioraButtonEventMap> {
-  constructor(
-    public rect: GuioraRect,
-    public color: GuioraColor,
-    public text: string,
-  ) {
-    super();
-  }
-
-  public draw(lib: Guiora): void {
-    lib.drawRect(this.rect, this.color);
-  }
-
-  public isHovered(mouse: GuioraMouse): boolean {
-    return mouse.x >= this.rect.x && mouse.x <= this.rect.x + this.rect.width
-      && mouse.y >= this.rect.y && mouse.y <= this.rect.y + this.rect.height;
-  }
-
-  public isClicked(mouse: GuioraMouse): boolean {
-    return this.isHovered(mouse) && mouse.isDown(GuioraMouseButton.Left);
-  }
-
-  public isReleased(mouse: GuioraMouse): boolean {
-    return this.isHovered(mouse) && mouse.isUp(GuioraMouseButton.Left);
-  }
-
-  public update(lib: Guiora, mouse: GuioraMouse): void {
-    if (this.isClicked(mouse)) {
-      this.emit(GuioraButtonEvent.Click, { button: this });
-    }
-
-    if (this.isReleased(mouse)) {
-      this.emit(GuioraButtonEvent.Release, { button: this });
-    }
-
-    if (this.isHovered(mouse)) {
-      this.emit(GuioraButtonEvent.Hover, { button: this });
-    }
-  }
-
-  public onClicked(fn: (button: GuioraButton) => void): void {
-    this.on(GuioraButtonEvent.Click, (event: GuioraParamsMap[GuioraButtonEvent.Click]) => {
-      fn(event.button);
-    });
-  }
-
-  public onReleased(fn: (button: GuioraButton) => void): void {
-    this.on(GuioraButtonEvent.Release, (event: GuioraParamsMap[GuioraButtonEvent.Release]) => {
-      fn(event.button);
-    });
-  }
-
-  public onHovered(fn: (button: GuioraButton) => void): void {
-    this.on(GuioraButtonEvent.Hover, (event: GuioraParamsMap[GuioraButtonEvent.Hover]) => {
-      fn(event.button);
-    });
-  }
+export type GuioraMouseEventType = {
+  x: number;
+  y: number;
+  button: GuioraMouseButton;
 }
 
 export enum GuioraMouseButton {
   Left = 1,
   Right = 2,
-  Middle = 4,
+  Middle = 3,
 }
 
+export type GuioraEventType = {
+  name: string;
+  fn: () => void;
+}
+
+export type GuioraRenderFn = (lib: Guiora) => void;
 export type GuioraUpdateFn = (lib: Guiora, mouse: GuioraMouse) => void;

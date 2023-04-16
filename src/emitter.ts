@@ -1,64 +1,108 @@
-import { GuioraButton, GuioraMouse } from "./types.ts";
+import { GuioraButton } from "./structures/button.ts";
+import { GuioraMouseEventType } from "./types.ts";
 
-export enum GuioraEvent {
-  MouseDown = "MouseDown",
-  MouseUp = "MouseUp",
-  MouseMove = "MouseMove",
-  MouseClick = "MouseClick",
-  MouseWheel = "MouseWheel",
-  KeyDown = "KeyDown",
-  KeyUp = "KeyUp",
-  Quit = "Quit",
+export enum GuioraGlobalEvent {
+  Quit = "quit",
 }
 
-export type GuioraGlobalEventMap = Record<GuioraEvent, any>;
+export enum GuioraKeyboardEvent {
+  Press   = "keyboard-press",
+  Release = "keyboard-release",
+}
+
+export enum GuioraMouseEvent {
+  Press       = "mouse-press",
+  Release     = "mouse-release",
+  Move        = "mouse-move",
+  Drag        = "mouse-drag",
+  Click       = "mouse-click",
+  LeftClick   = "mouse-left-click",
+  RightClick  = "mouse-right-click",
+  MiddleClick = "mouse-middle-click",
+  Wheel       = "mouse-wheel",
+}
 
 export enum GuioraButtonEvent {
-  Click = "Click",
-  Hover = "Hover",
-  Release = "Release",
+  Click       = "button-click",
+  LeftClick   = "button-left-click",
+  RightClick  = "button-right-click",
+  MiddleClick = "button-middle-click",
+  Hover       = "button-hover",
+  Leave       = "button-leave",
+  Enter       = "button-enter",
+  Release     = "button-release",
+  LongPress   = "button-long-press",
 }
 
-export type GuioraButtonEventMap = Record<GuioraButtonEvent, any>;
+export type GuioraEvent = 
+  GuioraGlobalEvent   |
+  GuioraMouseEvent    |
+  GuioraKeyboardEvent |
+  GuioraButtonEvent;
 
-export type GuioraEventMap = GuioraGlobalEventMap | GuioraButtonEventMap;
+export type GuioraGlobalEventMap   = {
+  [GuioraGlobalEvent.Quit]:         GuioraQuitEventParams;
+}
+export type GuioraButtonEventMap   = {
+  [GuioraButtonEvent.Click]:        GuioraButtonEventParams;
+  [GuioraButtonEvent.LeftClick]:    GuioraButtonEventParams;
+  [GuioraButtonEvent.RightClick]:   GuioraButtonEventParams;
+  [GuioraButtonEvent.MiddleClick]:  GuioraButtonEventParams;
+  [GuioraButtonEvent.Hover]:        GuioraButtonEventParams;
+  [GuioraButtonEvent.Leave]:        GuioraButtonEventParams;
+  [GuioraButtonEvent.Enter]:        GuioraButtonEventParams;
+  [GuioraButtonEvent.Release]:      GuioraButtonEventParams;
+  [GuioraButtonEvent.LongPress]:    GuioraButtonEventParams;
+}
+export type GuioraMouseEventMap    = {
+  [GuioraMouseEvent.Press]:         GuioraMouseDefaultEventParams;
+  [GuioraMouseEvent.Release]:       GuioraMouseDefaultEventParams;
+  [GuioraMouseEvent.Move]:          GuioraMouseDefaultEventParams;
+  [GuioraMouseEvent.Click]:         GuioraMouseDefaultEventParams;
+  [GuioraMouseEvent.Drag]:          GuioraMouseDragEventParams;
+  [GuioraMouseEvent.LeftClick]:     GuioraMouseDefaultEventParams;
+  [GuioraMouseEvent.RightClick]:    GuioraMouseDefaultEventParams;
+  [GuioraMouseEvent.MiddleClick]:   GuioraMouseDefaultEventParams;
+  [GuioraMouseEvent.Wheel]:         GuioraMouseDefaultEventParams;
+}
+export type GuioraKeyboardEventMap = {
+  [GuioraKeyboardEvent.Press]:      GuioraKeyboardEventParams;
+  [GuioraKeyboardEvent.Release]:    GuioraKeyboardEventParams;
+}
+
+export type GuioraEventMap = 
+  GuioraGlobalEventMap   |
+  GuioraButtonEventMap   |
+  GuioraMouseEventMap    |
+  GuioraKeyboardEventMap;
 
 export type GuioraEventKey<T extends GuioraEventMap> = string & keyof T;
 export type GuioraEventReciever<T> = (params: T) => void;
 
-interface GuioraMouseEventParams {
-  mouse: GuioraMouse;
+interface GuioraMouseDefaultEventParams {
+  mouse: GuioraMouseEventType;
 }
 
-interface GuioraKeyDownEventParams {
-  key: string;
+interface GuioraMouseDragEventParams extends GuioraMouseDefaultEventParams {
+  start: [number, number];
+  end: [number, number];
+  delta: [number, number];
+  distance: number;
+  start_time: number;
+  end_time: number;
+  duration: number;
 }
 
-interface GuioraKeyUpEventParams {
-  key: string;
-}
-
+// deno-lint-ignore no-empty-interface
 interface GuioraQuitEventParams {}
+
+interface GuioraKeyboardEventParams {
+  key: string;
+}
 
 interface GuioraButtonEventParams {
   button: GuioraButton;
 }
-
-export type GuioraParamsMap = {
-  [GuioraEvent.MouseDown]: GuioraMouseEventParams;
-  [GuioraEvent.MouseUp]: GuioraMouseEventParams;
-  [GuioraEvent.MouseClick]: GuioraMouseEventParams;
-  [GuioraEvent.MouseMove]: GuioraMouseEventParams;
-  [GuioraEvent.MouseWheel]: GuioraMouseEventParams;
-  [GuioraEvent.KeyDown]: GuioraKeyDownEventParams;
-  [GuioraEvent.KeyUp]: GuioraKeyUpEventParams;
-  [GuioraEvent.Quit]: GuioraQuitEventParams;
-  [GuioraButtonEvent.Click]: GuioraButtonEventParams;
-  [GuioraButtonEvent.Hover]: GuioraButtonEventParams;
-  [GuioraButtonEvent.Release]: GuioraButtonEventParams;
-};
-
-
 
 export class Emitter<T extends GuioraEventMap> {
   private events: {[K in keyof T]?: GuioraEventReciever<T[K]>[]} = {};
