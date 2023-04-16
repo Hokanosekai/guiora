@@ -108,7 +108,7 @@ export class Emitter<T extends GuioraEventMap> {
   private events: {[K in keyof T]?: GuioraEventReciever<T[K]>[]} = {};
   private eventLimits: {[eventName: string]: number} = {};
 
-  protected on<K extends GuioraEventKey<T>>(
+  on<K extends GuioraEventKey<T>>(
     eventName: K,
     callback: GuioraEventReciever<T[K]>,
     limit = Infinity
@@ -125,7 +125,7 @@ export class Emitter<T extends GuioraEventMap> {
     this.eventLimits[eventName] = limit;
   }
 
-  protected emit<K extends GuioraEventKey<T> >(eventName: K, params: T[K]): void {
+  emit<K extends GuioraEventKey<T> >(eventName: K, params: T[K]): void {
     const callbacks = this.events[eventName];
     if (callbacks) {
       callbacks.forEach(callback => {

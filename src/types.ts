@@ -3,9 +3,13 @@ import { GuioraMouse } from "./structures/mouse.ts";
 
 export const GUIORA_UPDATE_CAP = 1 / 60;
 
-export type GuioraElement = {
+export type GuioraElementType = {
+  x: number;
+  y: number;
+  color: GuioraColorType;
+  visible: boolean;
   render: (lib: Guiora) => void;
-  update: (lib: Guiora, mouse: GuioraMouse) => void;
+  update: (lib: Guiora) => void;
 }
 
 export type GuioraColorType = {
@@ -16,24 +20,18 @@ export type GuioraColorType = {
 }
 
 export type GuioraRectType = {
-  x: number;
-  y: number;
   width: number;
   height: number;
-} & GuioraElement
+}
 
 export type GuioraPointType = {
-  x: number;
-  y: number;
-  width: number;
-  color: GuioraColorType;
-} & GuioraElement
+  radius: number;
+}
 
 export type GuioraTextType = {
   text: string;
-  color: GuioraColorType;
   align: GuioraTextAlign;
-} & GuioraElement
+}
 
 export enum GuioraTextAlign {
   Left = 0,
@@ -42,10 +40,8 @@ export enum GuioraTextAlign {
 }
 
 export type GuioraButtonType = {
-  rect: GuioraRectType;
-  color: GuioraColorType;
   text: string;
-} & GuioraElement
+} & GuioraRectType;
 
 export type GuioraMouseType = {
   x: number;

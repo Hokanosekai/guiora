@@ -1,4 +1,4 @@
-import { GuioraElement } from "../types.ts";
+import { GuioraElement } from "./element.ts";
 import { Guiora } from "./guiora.ts";
 
 export class GuioraCanvas {
@@ -59,7 +59,7 @@ export class GuioraCanvas {
 
   public update(lib: Guiora): void {
     for (const element of this._elements) {
-      element.update(lib, lib.mouse);
+      element.update(lib);
     }
   }
 }
