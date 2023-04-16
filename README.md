@@ -50,6 +50,14 @@ class GuioraMouse {
 }
 ```
 
+You can access the mouse directly from the `Guiora` instance you created:
+
+```typescript
+const guiora = new Guiora("Guiora", 800, 600);
+
+const mouse = guiora.mouse;
+```
+
 There is prebuilt functions to know if a button is pressed or not:
 
 | Function | Description |
@@ -57,28 +65,119 @@ There is prebuilt functions to know if a button is pressed or not:
 | `isLeftPressed()` | Returns true if the left button is pressed. |
 | `isMiddlePressed()` | Returns true if the middle button is pressed. |
 | `isRightPressed()` | Returns true if the right button is pressed. |
-| `isDown(button: GuioraMouseButton)` | Returns true if the button is pressed. |
-| `isUp(button: GuioraMouseButton)` | Returns true if the button is not pressed. |
+| `isPressed()` | Returns true if a button is pressed. |
+| `isButtonPressed(button: number)` | Returns true if the button is pressed. |
+| `isReleased()` | Returns true if buttons is not pressed. |
 
 You can listen to mouse events with the following code:
 
 ```typescript
-guiora.onMouseUp((mouse: GuioraMouse) => {
+guiora.mouse.onClick((e) => {
   ...
 });
 
-guiora.onMouseDown((mouse: GuioraMouse) => {
+guiora.mouse.onPress((e) => {
+  ...
+}
+
+guiora.mouse.onRelease((e) => {
   ...
 });
 
-guiora.onMouseMove((mouse: GuioraMouse) => {
+guiora.mouse.onMove((e) => {
   ...
 });
 
-guiora.onMouseClick((mouse: GuioraMouse) => {
+guiora.mouse.onDrag((e) => {
+  ...
+});
+
+guiora.mouse.onLeftClick((e) => {
+  ...
+});
+
+guiora.mouse.onRightClick((e) => {
+  ...
+});
+
+guiora.mouse.onMiddleClick((e) => {
   ...
 });
 ```
+
+### Color
+
+Guiora has a built-in color struct:
+
+```typescript
+class GuioraColor {
+    r: number;
+    g: number;
+    b: number;
+    a: number;
+}
+```
+
+You can creata custom color with the following code:
+
+```typescript
+const color = new GuioraColor(255, 0, 0, 255);
+// or
+const color = Colors.fromHex("#ff0000"); // #rrggbb or #rrggbbaa
+```
+
+Also, there is a built-in color palette you can access it with the `Colors` object:
+
+| Color | Value |
+| --- | --- |
+| `Colors.Black` | `new GuioraColor(0, 0, 0, 255)` |
+| `Colors.White` | `new GuioraColor(255, 255, 255, 255)` |
+| `Colors.Red` | `new GuioraColor(255, 0, 0, 255)` |
+| `Colors.Green` | `new GuioraColor(0, 255, 0, 255)` |
+| `Colors.Blue` | `new GuioraColor(0, 0, 255, 255)` |
+| `Colors.Yellow` | `new GuioraColor(255, 255, 0, 255)` |
+| `Colors.Magenta` | `new GuioraColor(255, 0, 255, 255)` |
+| `Colors.Cyan` | `new GuioraColor(0, 255, 255, 255)` |
+| `Colors.Gray` | `new GuioraColor(128, 128, 128, 255)` |
+| `Colors.Silver` | `new GuioraColor(192, 192, 192, 255)` |
+| `Colors.Maroon` | `new GuioraColor(128, 0, 0, 255)` |
+| `Colors.Olive` | `new GuioraColor(128, 128, 0, 255)` |
+| `Colors.Lime` | `new GuioraColor(0, 128, 0, 255)` |
+| `Colors.Teal` | `new GuioraColor(0, 128, 128, 255)` |
+| `Colors.Navy` | `new GuioraColor(0, 0, 128, 255)` |
+| `Colors.Purple` | `new GuioraColor(128, 0, 128, 255)` |
+| `Colors.Orange` | `new GuioraColor(255, 165, 0, 255)` |
+| `Colors.Transparent` | `new GuioraColor(0, 0, 0, 0)` |
+
+The Colors object has also some prebuilt functions:
+
+| Function | Description |
+| --- | --- |
+| `fromHex(hex: string)` | Returns a color from a hex string. |
+| `fromRgb(r: number, g: number, b: number)` | Returns a color from RGB values. |
+| `fromRgba(r: number, g: number, b: number, a: number)` | Returns a color from RGBA values. |
+| `fromHsl(h: number, s: number, l: number)` | Returns a color from HSL values. |
+
+### Canvas
+
+### Rectangle
+
+A rectangle is defined by the following struct:
+
+```typescript
+class GuioraRect {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+```
+
+```typescript
+const rect = new GuioraRect(0, 0, 100, 50);
+```
+
+
 
 ### Button
 
@@ -92,26 +191,53 @@ class GuioraButton {
 }
 ```
 
+```typescript	
+const button = new GuioraButton({
+  rect: new GuioraRect(0, 0, 100, 50),
+  text: "Button",
+  color: Colors.Red,
+});
+```
+
 Like the mouse, there is prebuilt functions to know if a button is pressed or not:
 
 | Function | Description |
 | --- | --- |
-| `isClicked(mouse: GuioraMouse)` | Returns true if the button is pressed. |
 | `isHovered(mouse: GuioraMouse)` | Returns true if the button is hovered. |
 | `isReleased(mouse: GuioraMouse)` | Returns true if the button is released. |
 
 You can listen to button events with the following code:
 
 ```typescript
-guiora.onClicked((button: GuioraButton, mouse: GuioraMouse) => {
+button.onClick((e) => {
   ...
 });
 
-guiora.onHovered((button: GuioraButton, mouse: GuioraMouse) => {
+button.onLeftClick((e) => {
   ...
 });
 
-guiora.onReleased((button: GuioraButton, mouse: GuioraMouse) => {
+button.onMiddleClick((e) => {
+  ...
+});
+
+button.onRightClick((e) => {
+  ...
+});
+
+button.onRelease((e) => {
+  ...
+});
+
+button.onHover((e) => {
+  ...
+});
+
+button.onEnter((e) => {
+  ...
+});
+
+button.onLeave((e) => {
   ...
 });
 ```
