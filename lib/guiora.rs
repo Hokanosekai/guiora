@@ -17,9 +17,7 @@ pub struct GuioraWindow {
 pub struct GuioraMouse {
 	pub x: i32,
 	pub y: i32,
-	pub left: bool,
-	pub right: bool,
-	pub middle: bool,
+	pub button: i32,
 }
 
 #[deno_bindgen]
@@ -50,9 +48,7 @@ impl Clone for GuioraMouse {
 		GuioraMouse {
 			x: self.x,
 			y: self.y,
-			left: self.left,
-			right: self.right,
-			middle: self.middle,
+			button: self.button,
 		}
 	}
 }
@@ -115,9 +111,7 @@ impl GuioraWindow {
 			mouse: GuioraMouse {
 				x: 0,
 				y: 0,
-				left: false,
-				right: false,
-				middle: false,
+				button: 0,
 			},
 		};
 
@@ -130,26 +124,6 @@ impl GuioraWindow {
 
 		// Return a pointer to the window
 		Box::into_raw(Box::new(guiora))
-	}
-	/**
-	 * Get the X position of the mouse
-	 *
-	 * @return The X position of the mouse
-	 */
-	#[no_mangle]
-	pub fn get_mouse_x(&self) -> i32 {
-		// Return the mouse position
-		self.mouse.x
-	}
-	/**
-	 * Get the Y position of the mouse
-	 *
-	 * @return The Y position of the mouse
-	 */
-	#[no_mangle]
-	pub fn get_mouse_y(&self) -> i32 {
-		// Return the mouse position
-		self.mouse.y
 	}
 	/**
 	 * Set the draw color
@@ -223,6 +197,7 @@ impl GuioraWindow {
 		let mouse_state = unsafe { (*self.event_pump).mouse_state() };
 		self.mouse.x = mouse_state.x();
 		self.mouse.y = mouse_state.y();
+		self.mouse.button = mouse_state.left() as i32 + (mouse_state.right() as i32 * 2) + (mouse_state.middle() as i32 * 3);
 
 		// Update the window
 		unsafe {
@@ -237,43 +212,30 @@ impl GuioraWindow {
 		}
 	}
 	/**
-	 * Is the mouse down
+	 * Get the mouse
 	 * 
-	 * Check if any mouse button is down
-	 */
-	#[no_mangle]
-	pub fn is_mouse_down(&mut self) -> bool {
-		// Get the mouse state
-		let mouse_state = unsafe { (*self.event_pump).mouse_state() };
-
-		// Update the mouse
-		self.mouse.left = mouse_state.left();
-		self.mouse.right = mouse_state.right();
-		self.mouse.middle = mouse_state.middle();
-
-		// Check if any mouse button is down
-		mouse_state.left() || mouse_state.middle() || mouse_state.right()
-	}
-	/**
-	 * Get the mouse state
+	 * @param (pointer) the x pointer to the x position
+	 * @param (pointer) the y pointer to the y position
+	 * @param (pointer) the button pointer to the button
 	 *
-	 * @return The mouse state as an i32
+	 * @return 1 if no mouse is found
 	 */
 	#[no_mangle]
-	pub fn get_mouse_state(&mut self) -> i32 {
-		// Get the mouse state
-		let mouse_state = unsafe { (*self.event_pump).mouse_state() };
+	pub fn get_mouse(
+		&mut self,
+		x: *mut i32,
+		y: *mut i32,
+		button: *mut i32,
+	) -> i32 {
+		// Set the mouse
+		unsafe {
+			*x = self.mouse.x;
+			*y = self.mouse.y;
+			*button = self.mouse.button;
+		}
 
-		// Update the mouse
-		self.mouse.left = mouse_state.left();
-		self.mouse.right = mouse_state.right();
-		self.mouse.middle = mouse_state.middle();
-
-		// Return the mouse state as
-		// left = 1
-		// right = 2
-		// middle = 4
-		(mouse_state.left() as i32) | ((mouse_state.right() as i32) << 1) | ((mouse_state.middle() as i32) << 2)
+		// Return 0 if a mouse is found
+		0
 	}
 
 }
