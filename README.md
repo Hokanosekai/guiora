@@ -53,8 +53,6 @@ class GuioraMouse {
 You can access the mouse directly from the `Guiora` instance you created:
 
 ```typescript
-const guiora = new Guiora("Guiora", 800, 600);
-
 const mouse = guiora.mouse;
 ```
 
@@ -72,35 +70,35 @@ There is prebuilt functions to know if a button is pressed or not:
 You can listen to mouse events with the following code:
 
 ```typescript
-guiora.mouse.onClick((e) => {
+mouse.onClick((e) => {
   ...
 });
 
-guiora.mouse.onPress((e) => {
+mouse.onPress((e) => {
   ...
 }
 
-guiora.mouse.onRelease((e) => {
+mouse.onRelease((e) => {
   ...
 });
 
-guiora.mouse.onMove((e) => {
+mouse.onMove((e) => {
   ...
 });
 
-guiora.mouse.onDrag((e) => {
+mouse.onDrag((e) => {
   ...
 });
 
-guiora.mouse.onLeftClick((e) => {
+mouse.onLeftClick((e) => {
   ...
 });
 
-guiora.mouse.onRightClick((e) => {
+mouse.onRightClick((e) => {
   ...
 });
 
-guiora.mouse.onMiddleClick((e) => {
+mouse.onMiddleClick((e) => {
   ...
 });
 ```
@@ -160,44 +158,89 @@ The Colors object has also some prebuilt functions:
 
 ### Canvas
 
+The canvas is the main object you will use to draw on the screen. It is defined by the following struct:
+
+```typescript
+class GuioraCanvas {
+    width: number;
+    height: number;
+}
+```
+
+You can access the canvas directly from the `Guiora` instance you created:
+
+```typescript
+const canvas = guiora.canvas;
+```
+
+The canvas has the following functions:
+
+| Function | Description |
+| --- | --- |
+| `push(...element: GuioraElement[])` | Pushes elements to the canvas. |
+| `pop()` | Removes the last element from the canvas. |
+| `shift()` | Removes the first element from the canvas. |
+| `unshift(element: GuioraElement)` | Adds an element to the beginning of the canvas. |
+| `remove(element: GuioraElement)` | Removes an element from the canvas. |
+| `clear()` | Removes all elements from the canvas. |
+
+### Element
+
+An element is the base class for all the drawable objects. It is defined by the following struct:
+
+```typescript
+class GuioraElement {
+    x: number;
+    y: number;
+    color: GuioraColor;
+    visible: boolean;
+    render: (lib: Guiora) => void;
+    update: (lib: Guiora) => void;
+}
+```
+The `render` function is called every frame to draw the element on the screen. The `update` function is called every frame to update the element.
+
+There are some prebuilt elements you can use:
+
+| Element | Description |
+| --- | --- |
+| `GuioraRect` | A rectangle. |
+| `GuioraButton` | A button. |
+
 ### Rectangle
 
 A rectangle is defined by the following struct:
 
 ```typescript
-class GuioraRect {
-    x: number;
-    y: number;
+class GuioraRect extends GuioraElement {
     width: number;
     height: number;
 }
 ```
 
 ```typescript
-const rect = new GuioraRect(0, 0, 100, 50);
+const rect = new GuioraRect(0, 0, 100, 50, Colors.Red);
+canvas.push(rect);
 ```
-
-
 
 ### Button
 
 A button is defined by the following struct:
 
 ```typescript
-class GuioraButton {
-    rect: GuioraRect;
+class GuioraButton extends GuioraRect {
     text: string;
-    color: GuioraColor;
 }
 ```
 
 ```typescript	
-const button = new GuioraButton({
-  rect: new GuioraRect(0, 0, 100, 50),
-  text: "Button",
-  color: Colors.Red,
-});
+const button = new GuioraButton(
+  0, 0, 100, 50, Colors.Red, "Click me!"
+);
+canvas.push(button);
 ```
+
+> Note: The text is not rendered now, but it will be in the future.
 
 Like the mouse, there is prebuilt functions to know if a button is pressed or not:
 

@@ -4,9 +4,9 @@ const guiora = new Guiora("Guiora", 800, 600);
 
 let color = Colors.Teal;
 
-const rect = new GuioraRect(400, 400, 100, 100);
+const rect = new GuioraRect(400, 400, 100, 100, Colors.Red);
 const button = new GuioraButton(
-  new GuioraRect(100, 100, 100, 100),
+  100, 100, 100, 100,
   color, 
   "Hello World"
 )
@@ -17,13 +17,13 @@ button.onClick((e) => {
 })
 
 button.onEnter((e) => {
-  button.rect.width = 200;
-  button.rect.height = 200;
+  button.width = 200;
+  button.height = 200;
 })
 
 button.onLeave((e) => {
-  button.rect.width = 100;
-  button.rect.height = 100;
+  button.width = 100;
+  button.height = 100;
 })
 
 guiora.mouse.onPress((evt_mouse) => {
@@ -41,12 +41,8 @@ guiora.mouse.onMove((evt_mouse) => {
 
 guiora.mouse.onDrag((evt_mouse) => {
   console.log(evt_mouse);
-  button.rect = new GuioraRect(
-    evt_mouse.end[0],
-    evt_mouse.end[1],
-    button.rect.width,
-    button.rect.height
-  );
+  button.x = evt_mouse.end[0];
+  button.y = evt_mouse.end[1];
 });
 
 guiora.mouse.onClick((evt_mouse) => {
